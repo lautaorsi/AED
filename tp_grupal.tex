@@ -30,13 +30,10 @@
 
 \begin{proc}{nombre}{\In recursos : \TLista{\ent}, \In cooperan: \TLista{\bool}}{\TLista{\ent}}
 	\requiere{|recursos| == |cooperan|}
-	\asegura{(\forall i : \ent)(0\le i  < |recursos| \land  \Biggl(\biggl((cooperan[i] == True) \implies res[i] == \dfrac{SUMATORIA}{|recursos|}\biggr) \lor \biggl((cooperan[i] == False) \implies res[i] == recursos[i] + \dfrac{SUMATORIA}{|recursos|})\biggr)\Biggr)}
+	\asegura{(\forall i : \ent)(0\le i  < \longitud{recursos} \land  \Biggl(\biggl((cooperan[i] == True) \implies res[i] == \dfrac{\sum\limits_{i=0}^{|recursos|} recursos[j]}{|recursos|}\biggr) \lor \biggl((cooperan[i] == False) \implies res[i] == recursos[i] + \dfrac{\sum\limits_{i=0}^{|recursos|} recursos[j]}{|recursos|})\biggr)\Biggr)}
 \end{proc}
 
-\begin{equation}
-	\sum\limits_{i=0}^{|recursos|} recursos[j]                                    
-	\label{eq:1}
-\end{equation}
+
 
 
 
