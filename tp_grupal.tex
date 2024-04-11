@@ -29,16 +29,18 @@
 \subsection{Redistribucion De Los Frutos}
 
 \begin{proc}{nombre}{\In recursos : \TLista{\ent}, \In cooperan: \TLista{\bool}}{\TLista{\ent}}
-	\requiere{expresionBooleana1}
-	\asegura{expresionBooleana2}
-	\aux{auxiliar1}{parametros}{tipoRes}{expresion}
-	\pred{pred1}{parametros}{expresion} 
+	\requiere{|recursos| == |cooperan|}
+	\asegura{(\forall i : \ent)(0\le i  < |recursos| \land  \Biggl(\biggl((cooperan[i] == True) \implies res[i] == \dfrac{SUMATORIA}{|recursos|}\biggr) \lor \biggl((cooperan[i] == False) \implies res[i] == recursos[i] + \dfrac{SUMATORIA}{|recursos|})\biggr)\Biggr)}
 \end{proc}
 
-%\begin{equation}
-%	\sum\limits_{i=0}^{n} i                                    SUMATORIA
-%	\label{eq:1}
-%\end{equation}
+\begin{equation}
+	\sum\limits_{i=0}^{|recursos|} recursos[j]                                    
+	\label{eq:1}
+\end{equation}
+
+
+
+
 
 \subsection{Trayectoria De Los Frutos Individuales a Largo Plazo}
 
@@ -47,17 +49,16 @@
 	\requiere{expresionBooleana1}
 	\asegura{expresionBooleana2}
 	\aux{auxiliar1}{parametros}{tipoRes}{expresion}
-	\pred{pred1}{parametros}{expresion} 
 \end{proc}
 
 
 
 \subsection{Trayectoria Extraña Escalera}
 
-\begin{proc}{trayectoriaExtrañaEscalera}{\In trayectorias: \TLista{\float}}{\bool}
-	\requiere{expresionBooleana1}
-	\asegura{expresionBooleana2}
-	\pred{pred1}{parametros}{expresion} 
+\begin{proc}{trayectoriaExtrañaEscalera}{\In trayectoria: \TLista{\float}}{\bool}
+	\requiere{|trayectoria| > 0}
+	\asegura{(\forall u : \ent) \Biggl(  0 \leq i < |trayectoria| \land \biggl( \Bigl(  (1 \leq |trayectoria| \leq 2) \implies (res == True) \Bigr) \lor \Bigl(  hayUnicoMax(trayectoria) \implies  (res == True)\Bigr)   \biggr) \Biggr)}
+	\pred{hayUnicoMax}{\In list: \TLista{\float}}{} 
 \end{proc}
 
 \subsection{Individuo Decide Si Cooperar O No}
