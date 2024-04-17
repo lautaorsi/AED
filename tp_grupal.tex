@@ -43,9 +43,18 @@
 
 \begin{proc}{nombre}{\Inout trayectorias: \TLista{\TLista{\float}}, \In cooperan: \TLista{\bool}, \In apuestas:
 \TLista{\TLista{\float}}, \In pagos: \TLista{\TLista{\float}}, \In eventos: \TLista{\TLista{\nat}}}{}
-	\requiere{expresionBooleana1}
-	\asegura{expresionBooleana2}
-	\aux{auxiliar1}{parametros}{tipoRes}{expresion}
+	\requiere{mismaLongitud(old(trayectorias),cooperan,apuestas,pagos,eventos)\land trayectoriasValidas(old(trayectorias))\\\land  pagosPositivos(pagos) \land apuestasValidas(apuestas) \land longitugApuestasPagos(apuestas,pagos) \land longitudSublistas(pagos) \\\land longitudSublistas(apuestas) \land longitudSublistas(eventos)}
+	\asegura{(\forall i : \ent)(0 \leq i < |old(trayectorias)| \implicaLuego (trayectorias[i][0] = (old(trayectorias)[i])[0]) \yLuego (\forall j : \ent)(0 \leq i < |eventos[i]| \implicaLuego trayectorias[i][j+1]=calculoDeRecursosSegunCooperacion(trayectorias,pagos,apuestas,eventos,\\cooperan,i,j)))}
+	\aux{calculoDeRecursosSegunCooperacion}{trayectorias,pagos,apuestas:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\\\TLista{\bool},individuo:\ent,ronda:\ent}{\float}{if cooperan[individuo] = true then (fondoMonetario(trayectorias,pagos,apuestas,\\eventos,cooperan,ronda)/|cooperan|) else (calculoRecursos(trayectorias[individuo][ronda],\\pagos[individuo][eventos[individuo][ronda]],apuestas[individuo[eventos[individuo][ronda]]])+\\(fondoMonetario(trayectorias,pagos,apuestas,eventos,cooperan,ronda)/|cooperan|)) fi}
+    \aux{calculoRecursos}{recurso,pago,apuesta:\float}{\float}{recurso*pago*apuesta}
+    \aux{fondoMonetario}{trayectorias,pagos,apuestas:\TLista{\TLista{\float},eventos:\TLista{\TLista{\nat},cooperan:\TLista{\bool},ronda:\ent}}}{\float}{\sum\limits_{h=0}^{|cooperan|-1} if cooperan[h] = true then \\calculoRecursos(trayectorias[h][ronda],pagos[h][eventos[h][ronda]],apuestas[h][eventos[h][ronda]]) else 0 fi}
+    \aux{sumaApuestas}{apuestas:\TLista{\TLista{\float}}, individuo: \ent}{\float}{\sum\limits_{h=0}^{|apuestas[individuo]|-1} apuestas[individuo][h]}
+    \pred{mismaLongitud}{trayectorias,pagos,apuestas:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\TLista{\bool}}{|trayectorias| > 0 \land |trayectorias|=|cooperan|=|apuestas|=|pagos|=|eventos|}
+    \pred{trayectoriasValidas}{trayectorias:\TLista{\TLista{\float}}}{(\forall i: \ent)(0 \leq i < |trayectorias| \implicaLuego |trayectorias[i]| = 1 \yLuego (\forall x:\float)(x \in trayectorias[i] \implicaLuego x > 0))}
+    \pred{pagosPositivos}{pagos:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |pagos| \yLuego (0 \leq j < |pagos[i]| \implicaLuego pagos[i][j] > 0))}
+    \pred{apuestasValidas}{apuestas:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |apuestas| \implicaLuego sumaApuestas(apuestas,i) = 1 \yLuego (0 \leq j < |apuestas[i]| \implicaLuego 0 \leq apuestas[i][j] \leq 1)}
+    \pred{longitudApuestasPagos}{apuestas,pagos:\TLista{\TLista{\float}}}{(\forall i:\ent)(0 \leq i < |apuestas| \implicaLuego |apuestas[i]| = |pagos[i]|)}
+    \pred{longitudSublistas}{lista:\TLista{\TLista{T}}}{(\forall i:\ent)(0 \leq i < |lista|-1 \implicaLuego (|lista[i]| > 0 \yLuego |lista[i]| = |lista[i+1]|))}
 \end{proc}
 
 
