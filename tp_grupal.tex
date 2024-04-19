@@ -28,9 +28,12 @@
 \section{Especificaci\'on}
 \subsection{Redistribucion De Los Frutos}
 
-\begin{proc}{nombre}{\In recursos : \TLista{\ent}, \In cooperan: \TLista{\bool}}{\TLista{\ent}}
-	\requiere{|recursos| == |cooperan|}
-	\asegura{(\forall i : \ent)(0\le i  < \longitud{recursos} \land  \Biggl(\biggl((cooperan[i] == True) \implies res[i] == \dfrac{\sum\limits_{i=0}^{|recursos|} recursos[j]}{|recursos|}\biggr) \lor \biggl((cooperan[i] == False) \implies res[i] == recursos[i] + \dfrac{\sum\limits_{i=0}^{|recursos|} recursos[j]}{|recursos|})\biggr)\Biggr)}
+\begin{proc}{redistribucionDeLosFrutos}{\In recursos : \TLista{\ent}, \In cooperan: \TLista{\bool}}{\TLista{\ent}}
+	\requiere{|recursos| = |cooperan| \land recursosValidos(recursos)}
+	\asegura{|res| = |recursos| \yLuego (\forall i : \ent)(0\le i  < \longitud{recursos} \implicaLuego \Biggl(\biggl((cooperan[i] = true) \implicaLuego res[i] = \\\dfrac{fondoMonetario(recursos,cooperan)}{|recursos|}\biggr) \land \biggl((cooperan[i] = false) \implicaLuego res[i] = recursos[i] + \\\dfrac{fondoMonetario(recursos,cooperan)}{|recursos|})\biggr)\Biggr)}
+    \aux{fondoMonetario}{recursos:\TLista{\float},cooperan:\TLista{\bool}}{\float}{\sum\limits_{j=0}^{|recursos|-1}\IfThenElse{cooperan[j]=true}{recursos[j]}{0}}
+    \pred{recursosValidos}{recursos:\TLista{\float}}{(\forall i : \ent)(0 \leq i < |recursos| \implicaLuego recursos[i] > 0)}
+    
 \end{proc}
 
 
@@ -41,18 +44,19 @@
 
 \subsection{Trayectoria De Los Frutos Individuales a Largo Plazo}
 
-\begin{proc}{nombre}{\Inout trayectorias: \TLista{\TLista{\float}}, \In cooperan: \TLista{\bool}, \In apuestas:
+\begin{proc}{trayectoriaDeLosFrutosIndividualesALargoPlazo}{\Inout trayectorias: \TLista{\TLista{\float}}, \In cooperan: \TLista{\bool}, \In apuestas:
 \TLista{\TLista{\float}}, \In pagos: \TLista{\TLista{\float}}, \In eventos: \TLista{\TLista{\nat}}}{}
-	\requiere{mismaLongitud(old(trayectorias),cooperan,apuestas,pagos,eventos) \\ \land trayectoriasValidas(old(trayectorias))\\ \land  pagosPositivos(pagos) \\ \land apuestasValidas(apuestas) \\ \land longitugApuestasPagos(apuestas,pagos) \\ \land longitudSublistas(pagos) \\ \land longitudSublistas(apuestas) \\ \land longitudSublistas(eventos)}
+	\requiere{trayectoriasValidas(old(trayectorias)) \\ \land mismaLongitud(old(trayectorias),pagos,apuestas,eventos,cooperan) \\ \land  pagosPositivos(pagos) \\ \land apuestasValidas(apuestas) \\ \land longitugApuestasPagos(apuestas,pagos) \\ \land longitudSublistas(pagos) \\ \land longitudSublistas(apuestas) \\ \land longitudSublistas(eventos)}
 	\asegura{(\forall i : \ent)(0 \leq i < |old(trayectorias)| \implicaLuego (trayectorias[i][0] = (old(trayectorias)[i])[0])\yLuego (\forall j : \ent)(0 \leq i < |eventos[i]| \implicaLuego trayectorias[i][j+1]=calculoDeRecursosSegunCooperacion(trayectorias,pagos,apuestas,eventos,\\cooperan,i,j)))}
-	\aux{calculoDeRecursosSegunCooperacion}{trayectorias,pagos,apuestas:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\\\TLista{\bool},individuo:\ent,ronda:\ent}{\float}{if cooperan[individuo] = true then (fondoMonetario(trayectorias,pagos,apuestas,\\eventos,cooperan,ronda)/|cooperan|) else (calculoRecursos(trayectorias[individuo][ronda],\\pagos[individuo][eventos[individuo][ronda]],apuestas[individuo[eventos[individuo][ronda]]])+\\(fondoMonetario(trayectorias,pagos,apuestas,eventos,cooperan,ronda)/|cooperan|)) fi}
+	\aux{calculoDeRecursosSegunCooperacion}{trayectorias,pagos,apuestas:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\\\TLista{\bool},individuo:\ent,ronda:\ent}{\float}{\IfThenElse{cooperan[individuo] = true}{fondoMonetarioRepartido(trayectorias,pagos,\\apuestas,eventos,cooperan,ronda)}{calculoRecursos(trayectorias[individuo][ronda],\\pagos[individuo][eventos[individuo][ronda]],apuestas[individuo[eventos[individuo][ronda]]])+fondoMonetarioRepartido\\(trayectorias,pagos,apuestas,eventos,cooperan,ronda)}}
     \aux{calculoRecursos}{recurso,pago,apuesta:\float}{\float}{recurso*pago*apuesta}
-    \aux{fondoMonetario}{trayectorias,pagos,apuestas:\TLista{\TLista{\float},eventos:\TLista{\TLista{\nat},cooperan:\TLista{\bool},ronda:\ent}}}{\float}{\sum\limits_{h=0}^{|cooperan|-1} if cooperan[h] = true then \\calculoRecursos(trayectorias[h][ronda],pagos[h][eventos[h][ronda]],apuestas[h][eventos[h][ronda]]) else 0 fi}
+    \aux{fondoMonetario}{trayectorias,pagos,apuestas:\TLista{\TLista{\float},eventos:\TLista{\TLista{\nat},cooperan:\TLista{\bool},ronda:\ent}}}{\float}{\sum\limits_{h=0}^{|cooperan|-1} \IfThenElse{cooperan[h] = true}{calculoRecursos(trayectorias[h][ronda],pagos[h][eventos[h][ronda]],\\apuestas[h][eventos[h][ronda]])}{0}}
+    \aux{fondoMonetarioRepartido}{trayectorias,pagos,apuestas:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\TLista{\bool},ronda:\ent}{\float}{\dfrac{fondoMonetario(trayectorias,pagos,\\apuestas,eventos,cooperan,ronda)}{|cooperan|}}
     \aux{sumaApuestas}{apuestas:\TLista{\TLista{\float}}, individuo: \ent}{\float}{\sum\limits_{h=0}^{|apuestas[individuo]|-1} apuestas[individuo][h]}
-    \pred{mismaLongitud}{trayectorias,pagos,apuestas:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\TLista{\bool}}{|trayectorias| > 0 \land |trayectorias|=|cooperan|=|apuestas|=|pagos|=|eventos|}
-    \pred{trayectoriasValidas}{trayectorias:\TLista{\TLista{\float}}}{(\forall i: \ent)(0 \leq i < |trayectorias| \implicaLuego |trayectorias[i]| = 1 \yLuego (\forall x:\float)(x \in trayectorias[i] \implicaLuego x > 0))}
+    \pred{mismaLongitud}{trayectorias,pagos,apuestas:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\TLista{\bool}}{|trayectorias|=|cooperan|=|apuestas|=|pagos|=|eventos|}
+    \pred{trayectoriasValidas}{trayectorias:\TLista{\TLista{\float}}}{|trayectorias| > 0 \land (\forall i: \ent)(0 \leq i < |trayectorias| \implicaLuego |trayectorias[i]| = 1 \yLuego (\forall x:\float)(x \in trayectorias[i] \implicaLuego x > 0))}
     \pred{pagosPositivos}{pagos:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |pagos| \yLuego (0 \leq j < |pagos[i]| \implicaLuego pagos[i][j] > 0))}
-    \pred{apuestasValidas}{apuestas:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |apuestas| \implicaLuego sumaApuestas(apuestas,i) = 1 \yLuego (0 \leq j < |apuestas[i]| \implicaLuego 0 \leq apuestas[i][j] \leq 1)}
+    \pred{apuestasValidas}{apuestas:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |apuestas| \implicaLuego sumaApuestas(apuestas,i) = 1 \yLuego (0 \leq j < |apuestas[i]| \implicaLuego 0 \leq apuestas[i][j] \leq 1))}
     \pred{longitudApuestasPagos}{apuestas,pagos:\TLista{\TLista{\float}}}{(\forall i:\ent)(0 \leq i < |apuestas| \implicaLuego |apuestas[i]| = |pagos[i]|)}
     \pred{longitudSublistas}{lista:\TLista{\TLista{T}}}{(\forall i:\ent)(0 \leq i < |lista|-1 \implicaLuego (|lista[i]| > 0 \yLuego |lista[i]| = |lista[i+1]|))}
 \end{proc}
@@ -63,22 +67,27 @@
 
 \begin{proc}{trayectoriaExtrañaEscalera}{\In trayectoria: \TLista{\float}}{\bool}
 	\requiere{|trayectoria| > 0}
-	\asegura{(\forall u : \ent) \Biggl(  0 \leq i < |trayectoria| \land \biggl( \Bigl(  (1 \leq |trayectoria| \leq 2) \implies (res == True) \Bigr) \lor \Bigl(  hayUnicoMax(trayectoria) \implies  (res == True)\Bigr)   \biggr) \Biggr)}
+	\asegura{res = true \iff ((|trayectoria| = 1) \lor (|trayectoria| = 2 \land \neg(todosIguales(trayectoria)) \lor (|trayectoria| > 2 \land hayUnicoMax(trayectoria)))}
 	\pred{hayUnicoMax}{\In lista: \TLista{\float}}{
-	CantidadMaximos(lista) == 1
-	}
-	\pred{CantidadMaximos}{\In lista: \TLista{\float}}{
-	res = {\sum\limits_{i =1}^{|lista|-2}\Biggl(If\biggl(\Bigl(lista[i-1] < lista[i]\Bigr) \land \Bigl(lista[i] > lista[i+1]\Bigr)\biggr)Then(1)Else(0)\Biggr)}
-} 
+	CantidadMaximos(lista) = 1}
+    \pred{todosIguales}{lista:\TLista{\float}}{(\forall i,j : \ent)(0 \leq i < |lista| \land 0 \leq j < |lista| \land i \neq j \implicaLuego lista[i] = lista[j])}
+	\aux{CantidadMaximos}{lista: \TLista{\float}}{\ent}{\sum\limits_{i =1}^{|lista|-2}\IfThenElse{\Bigl(lista[i-1] < lista[i]\Bigr) \land \Bigl(lista[i] > lista[i+1]\Bigr)}{1}{0}}
 \end{proc}
 
 \subsection{Individuo Decide Si Cooperar O No}
 
 \begin{proc}{individuoDecideSiCooperarONo}{\In individuo: \nat, \In recursos: \TLista{\float}, \Inout cooperan: \TLista{\bool}, \In apuestas: \TLista{\TLista{\float}}, \In pagos: \TLista{\float}, \In eventos: \TLista{\TLista{\nat}}}{}
-	\requiere{expresionBooleana1}
-	\asegura{expresionBooleana2}
-	\aux{auxiliar1}{parametros}{tipoRes}{expresion}
-	\pred{pred1}{parametros}{expresion} 
+	\requiere{mismaLongitud(recursos,pagos,apuestas,eventos,cooperan) \\ \land individuo < |eventos| \\ \land pagosPositivos(pagos) \\ \land apuestasValidas(apuestas) \\ \land longitudApuestasPagos(apuestas,pagos) \\ \land longitudSublistas(apuestas) \\ \land longitudSublistas(eventos) \\ \land longitudSublistas(pagos) }
+	\asegura{\IfThenElse{ganaMasCooperando(individuo,recursos,cooperan,apuestas,pagos,eventos)}{cooperan[individuo] = true}{cooperan[individuo] = false}}
+	\aux{recursoCooperativoFinal}{apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\TLista{\bool},recursos:\TLista{\float}}{\float}{recursoCooperativoTiempo(apuestas,pagos,eventos,cooperan,recursos,|eventos[0]|-1)}
+    \aux{recursoCooperativoTiempo}{apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\TLista{\bool},recursos:\TLista{\float},\\tiempo:\ent}{\float}{\IfThenElse{tiempo = 0}{recursoCooperativoTiempoCero(apuestas,pagos,eventos,recursos,\\cooperan)}{recursoCooperativoTiempoCero(apuestas,pagos,eventos,recursos,cooperan) * productoriaRecurso\\(apuestas,pagos,eventos,recursos,cooperan,tiempo)}}
+    \aux{recursoCooperativoTiempoCero}{apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},recursos:\TLista{\float},cooperan:\TLista{\bool}}{\float}{\dfrac{\sum\limits_{h=0}^{|cooperan|-1}{\IfThenElse{cooperan[h]=true}{recursos[h]*apuestas[h][eventos[h][0]]*pagos[h][eventos[h][0]]}{0}}}{|cooperan|}}
+    \aux{productoriaRecurso}{apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},recursos:\TLista{\float},cooperan:\TLista{\bool},tiempo:\ent}{\float}{\dfrac{\prod\limits_{i=1}^{tiempo}(\sum\limits_{h=0}^{|cooperan|-1}\IfThenElse{cooperan[h] = true}{apuestas[h][eventos[h][i]]*pagos[h][eventos[h][i]]}{0})}{|cooperan|^{tiempo}}}
+    \aux{recursoNoCooperativoFinal}{individuo:\nat,apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},recursos:\TLista{\float}}{\float}{recursoNoCooperativoTiempo(individuo,apuestas,pagos,eventos,recursos,|eventos|-1)}
+    \aux{recursoNoCooperativoTiempo}{individuo:\nat,apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},recursos:\TLista{\float},tiempo:\\\ent}{\float}{recurso[individuo]*\prod_{i=0}^{tiempo}pagos[individuo][eventos[individuo][i]]*apuestas[individuo][evento[individuo][i]]}
+    \pred{ganaMasCooperando}{individuo:\nat,recursos:\TLista{\float},cooperan:\TLista{\bool},apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}}}{recursoCooperativoFinal(apuestas,pagos,eventos,cooperan,recursos) > recursoNoCooperativoFinal (individuo,\\apuestas,pagos,eventos,recursos)}
+    \pred{mismaLongitud}{recursos:\TLista{\float},pagos,apuestas:\TLista{\TLista{\float}},eventos: \TLista{\TLista{\nat}},cooperan:\TLista{\bool}}{|recursos| > 0 \land |recursos|=|pagos|=|apuestas|=|eventos|=|cooperan|}
+    *preds pagosPositivos, apuestasValidas, longitudApuestasPagos y longitudSublistas declarados en ejercicio 1.2
 \end{proc}
 
 
