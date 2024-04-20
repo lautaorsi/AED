@@ -78,18 +78,31 @@
 
 \begin{proc}{individuoDecideSiCooperarONo}{\In individuo: \nat, \In recursos: \TLista{\float}, \Inout cooperan: \TLista{\bool}, \In apuestas: \TLista{\TLista{\float}}, \In pagos: \TLista{\float}, \In eventos: \TLista{\TLista{\nat}}}{}
 	\requiere{mismaLongitud(recursos,pagos,apuestas,eventos,cooperan) \\ \land individuo < |eventos| \\ \land pagosPositivos(pagos) \\ \land apuestasValidas(apuestas) \\ \land longitudApuestasPagos(apuestas,pagos) \\ \land longitudSublistas(apuestas) \\ \land longitudSublistas(eventos) \\ \land longitudSublistas(pagos) }
-	\asegura{\IfThenElse{ganaMasCooperando(individuo,recursos,cooperan,apuestas,pagos,eventos)}{cooperan[individuo] = true}{cooperan[individuo] = false}}
-	\aux{recursoCooperativoFinal}{apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\TLista{\bool},recursos:\TLista{\float}}{\float}{recursoCooperativoTiempo(apuestas,pagos,eventos,cooperan,recursos,|eventos[0]|-1)}
-    \aux{recursoCooperativoTiempo}{apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\TLista{\bool},recursos:\TLista{\float},\\tiempo:\ent}{\float}{\IfThenElse{tiempo = 0}{recursoCooperativoTiempoCero(apuestas,pagos,eventos,recursos,\\cooperan)}{recursoCooperativoTiempoCero(apuestas,pagos,eventos,recursos,cooperan) * productoriaRecurso\\(apuestas,pagos,eventos,recursos,cooperan,tiempo)}}
-    \aux{recursoCooperativoTiempoCero}{apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},recursos:\TLista{\float},cooperan:\TLista{\bool}}{\float}{\dfrac{\sum\limits_{h=0}^{|cooperan|-1}{\IfThenElse{cooperan[h]=true}{recursos[h]*apuestas[h][eventos[h][0]]*pagos[h][eventos[h][0]]}{0}}}{|cooperan|}}
-    \aux{productoriaRecurso}{apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},recursos:\TLista{\float},cooperan:\TLista{\bool},tiempo:\ent}{\float}{\dfrac{\prod\limits_{i=1}^{tiempo}(\sum\limits_{h=0}^{|cooperan|-1}\IfThenElse{cooperan[h] = true}{apuestas[h][eventos[h][i]]*pagos[h][eventos[h][i]]}{0})}{|cooperan|^{tiempo}}}
-    \aux{recursoNoCooperativoFinal}{individuo:\nat,apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},recursos:\TLista{\float}}{\float}{recursoNoCooperativoTiempo(individuo,apuestas,pagos,eventos,recursos,|eventos|-1)}
-    \aux{recursoNoCooperativoTiempo}{individuo:\nat,apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},recursos:\TLista{\float},tiempo:\\\ent}{\float}{recurso[individuo]*\prod_{i=0}^{tiempo}pagos[individuo][eventos[individuo][i]]*apuestas[individuo][evento[individuo][i]]}
-    \pred{ganaMasCooperando}{individuo:\nat,recursos:\TLista{\float},cooperan:\TLista{\bool},apuestas,pagos:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}}}{recursoCooperativoFinal(apuestas,pagos,eventos,cooperan,recursos) > recursoNoCooperativoFinal (individuo,\\apuestas,pagos,eventos,recursos)}
-    \pred{mismaLongitud}{recursos:\TLista{\float},pagos,apuestas:\TLista{\TLista{\float}},eventos: \TLista{\TLista{\nat}},cooperan:\TLista{\bool}}{|recursos| > 0 \land |recursos|=|pagos|=|apuestas|=|eventos|=|cooperan|}
-    *preds pagosPositivos, apuestasValidas, longitudApuestasPagos y longitudSublistas declarados en ejercicio 1.2
-\end{proc}
+	\asegura{(\exists Trayectorias,TrayectoriasNegadas : {\TLista{\TLista{\ent}}}) (\exists CooperanNegada {\TLista{\bool}}) 
+\\ \biggl( \Bigl(Trayectorias = ValidarTrayectoria(Trayectorias, cooperan, apuestas, pagos, eventos, recursos)\Bigr)
+ \\ \land \Bigl( \neg(cooperan[individuo]) = cooperanNegada[Individuo] \Bigr) 
+\\ \land (\forall i : \ent) \Bigl( 0 \leq i < |cooperan| \land i \neq Individuo \land cooperan[i] = cooperanNegada[i]  \Bigr)
+\\ \land \Bigl( TrayectoriasNegada = ValidarTrayectorias(TrayectoriasNegada, cooperanNegada, apuestas, pagos, eventos, recursos)\Bigr)   \biggr) 
+\\ \implicaLuego \biggl( \Bigl( \bigl(Trayectorias[Individuo][|eventos[0]|-1] \geq TrayectoriasNegada[Individuo][|eventos[0]| - 1]\bigr) 
+\\ \land cooperan[Individuo] = old(cooperan[Individuo]) \Bigr) 
+\\ \lor \Bigl(  \bigl(Trayectorias[Individuo][|eventos[0]|-1] < TrayectoriasNegada[Individuo][|eventos[0]| - 1]\bigr) 
+\\ \land cooperan[Individuo] = cooperanNegada[Individuo]     \Bigr)
+  \biggr)}
 
+ \pred{ValidarTrayectoria}{trayectorias: \TLista{\TLista{\ent}},cooperan: \TLista{\bool}, apuestas: \TLista{\TLista{\float}}, pagos: \TLista{\float},eventos: \TLista{\TLista{\nat}}, recursos: \TLista{\float}}{(\forall i : \ent)(0 \leq i < |recursos| \implicaLuego (trayectorias[i][0] = recursos[i])\yLuego \\ (\forall j : \ent)(0 \leq j < |eventos[i]| \implicaLuego
+ \\ trayectorias[i][j+1]=calculoDeRecursosSegunCooperacion(trayectorias,pagos,apuestas,eventos,cooperan,i,j)))}
+
+    *preds pagosPositivos, apuestasValidas, longitudApuestasPagos, longitudSublistas y calculoDeRecursosSegunCooperacion (con sus dependencias) declarados en ejercicio 1.2
+\\
+\textbf{Desarrollo 1.4:}
+\\
+ La dificultad de este ejercicio aparece en no tener la secuencia de trayectorias individuales, viendo que calcularlas llevaria mucha complejidad planteamos un cuantificador y predicamos sobre el, analizando las posibles secuencias \textit{trayectorias y trayectoriasNegada} (siendo esta ultima la que corresponderia al caso de la negacion del booleano de cooperacion del individuo) podemos, utilizando los predicados y auxiliares del ejercicio 1.2 y la lista de recursos verificar que efectivamente estas listas son las que deberiamos obtener si calcularamos las trayectorias al largo plazo. \\ \\
+Para validar esta trayectoria comparamos que las primeras posiciones de la trayectoria correspondan a los recursos (basicamente, que el punto de partida de la trayectoria sea correcta) y luego, verificamos que cada posicion \textit{N} de la lista, sea correspondiente a calcular los recursos \textit{N} rondas para cada individuo, partiendo de la base de la ronda 0 (recursos). Es importante notar, que para el caso \textit{trayectoriasNegada} utilizaremos la lista \textit{cooperanNegada}, pues el calculo dependera de si el individuo coopera o no.
+\\ \\
+Al final, podemos observar que utilizando la comparacion de la ultima posicion de \textit{trayectoria} del individuo (basandonos en la cantidad de eventos) con la ultima posicion de la \textit{trayectoriaNegada} asignamos, segun corresponda el valor original (en el primer caso) y el valor negado en el segundo.-
+
+
+\end{proc}
 
 \subsection{Individuo Actualiza Apuesta}
 
