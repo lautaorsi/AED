@@ -68,7 +68,7 @@
 \begin{proc}{trayectoriaExtrañaEscalera}{\In trayectoria: \TLista{\float}}{\bool}
 	\requiere{|trayectoria| > 0}
 	\asegura{res = true \iff ((|trayectoria| = 1) \lor (|trayectoria| = 2 \land \neg(todosIguales(trayectoria)) \lor (|trayectoria| > 2 \land hayUnicoMax(trayectoria)))}
-	\pred{hayUnicoMax}{\In lista: \TLista{\float}}{
+	\pred{hayUnicoMax}{lista: \TLista{\float}}{
 	CantidadMaximos(lista) = 1}
     \pred{todosIguales}{lista:\TLista{\float}}{(\forall i,j : \ent)(0 \leq i < |lista| \land 0 \leq j < |lista| \land i \neq j \implicaLuego lista[i] = lista[j])}
 	\aux{CantidadMaximos}{lista: \TLista{\float}}{\ent}{\sum\limits_{i =1}^{|lista|-2}\IfThenElse{\Bigl(lista[i-1] < lista[i]\Bigr) \land \Bigl(lista[i] > lista[i+1]\Bigr)}{1}{0}}
