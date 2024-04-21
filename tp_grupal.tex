@@ -50,7 +50,7 @@
 \begin{proc}{trayectoriaDeLosFrutosIndividualesALargoPlazo}{\Inout trayectorias: \TLista{\TLista{\float}}, \In cooperan: \TLista{\bool}, \In apuestas:
 \TLista{\TLista{\float}}, \In pagos: \TLista{\TLista{\float}}, \In eventos: \TLista{\TLista{\nat}}}{}
 	\requiere{trayectoriasValidas(old(trayectorias)) \\ \land mismaLongitud(old(trayectorias),pagos,apuestas,eventos,cooperan) \\ \land  pagosPositivos(pagos) \\ \land apuestasValidas(apuestas) \\ \land longitugApuestasPagos(apuestas,pagos) \\ \land longitudSublistas(pagos) \\ \land longitudSublistas(apuestas) \\ \land longitudSublistas(eventos)}
-	\asegura{|trayectorias| = |old(trayectorias)| \land (\forall i : \ent)(0 \leq i < |old(trayectorias)| \implicaLuego (trayectorias[i][0] = (old(trayectorias)[i])[0])\yLuego (\forall j : \ent)(0 \leq j < |eventos[i]| \implicaLuego trayectorias[i][j+1]=calculoDeRecursosSegunCooperacion(trayectorias,pagos,apuestas,eventos,\\cooperan,i,j)))}
+	\asegura{(\forall i : \ent)(0 \leq i < |old(trayectorias)| \implicaLuego (trayectorias[i][0] = (old(trayectorias)[i])[0])\yLuego (\forall j : \ent)(0 \leq j < |eventos[i]| \implicaLuego trayectorias[i][j+1]=calculoDeRecursosSegunCooperacion(trayectorias,pagos,apuestas,eventos,\\cooperan,i,j)))}
 	\aux{calculoDeRecursosSegunCooperacion}{trayectorias,pagos,apuestas:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\\\TLista{\bool},individuo:\ent,ronda:\ent}{\float}{\IfThenElse{cooperan[individuo] = true}{fondoMonetarioRepartido(trayectorias,pagos,\\apuestas,eventos,cooperan,ronda)}{calculoRecursos(trayectorias[individuo][ronda],\\pagos[individuo][eventos[individuo][ronda]],apuestas[individuo[eventos[individuo][ronda]]])+fondoMonetarioRepartido\\(trayectorias,pagos,apuestas,eventos,cooperan,ronda)}}
     \aux{calculoRecursos}{recurso,pago,apuesta:\float}{\float}{recurso*pago*apuesta}
     \aux{fondoMonetario}{trayectorias,pagos,apuestas:\TLista{\TLista{\float},eventos:\TLista{\TLista{\nat},cooperan:\TLista{\bool},ronda:\ent}}}{\float}{\sum\limits_{h=0}^{|cooperan|-1} \IfThenElse{cooperan[h] = true}{calculoRecursos(trayectorias[h][ronda],pagos[h][eventos[h][ronda]],\\apuestas[h][eventos[h][ronda]])}{0}}
@@ -120,16 +120,22 @@ Al final, podemos observar que utilizando la comparacion de la ultima posicion d
 \subsection{Individuo Actualiza Apuesta}
 
 \begin{proc}{individuoActualizaApuesta}{\In individuo: \nat, \In recursos: \TLista{\float}, \In cooperan: \TLista{\bool}, \Inout apuestas: \TLista{\TLista{\float}}, \In pagos: \TLista{\TLista{\float}}, \In eventos: \TLista{\TLista{\nat}}}{}
-	\requiere{expresionBooleana1}
-	\asegura{(\forall s: \TLista{\float}) esMaximaGanancia(s,recursos[individuo],pagos[individuo],eventos[individuo]) \implicaLuego 
-	\\ apuestas[individuo] = s}
-	\pred{esMaximaGanancia}{apuesta: \TLista{\float}, recurso: \float, pago: \TLista{\float}, evento: \TLista{\nat}}{\textbf{if}\Bigl((\exists q: \TLista{\float})\\(RecursoIndividualFinal(q,pago,evento,recurso) > RecursoIndividualFinal(apuesta, pago, evento, recurso))\Bigr)
+	\requiere{pagosPositivos(pagos) \land mismaLongitud(recursos,cooperan,apuestas,pagos,eventos) \\ \land apuestasValidas(apuestas) \land longitudApuestasPagos(apuestas,pagos) ^{*}}
+	\asegura{(\forall potencialApuesta: \TLista{\float}) \\ \bigl(esMaximaGanancia(potencialApuesta,recursos[individuo],pagos[individuo],eventos[individuo]) \yLuego
+	\\ apuestaValida(potencialApuesta) \yLuego |potencialApuesta| = |apuestas[individuo]| \bigr) \\ \implicaLuego apuestas[individuo] = potencialApuesta}
+	\pred{esMaximaGanancia}{apuesta: \TLista{\float}, recurso: \float, pago: \TLista{\float}, evento: \TLista{\nat}}{\textbf{if}\Bigl((\exists otraApuesta: \TLista{\float})\\(RecursoIndividualFinal(otraApuesta,pago,evento,recurso) > RecursoIndividualFinal(apuesta, pago, evento, recurso))\Bigr)
  \\ \textbf{Then}(False)
 \\ \textbf{Else}(True)} 
 	
 \aux{RecursoIndividualFinal}{\In apuesta: \TLista{\float}, \In pago: \TLista{\float}, \In evento: \TLista{\nat}, \In recurso: \float}{\float}{ \\ \Bigl(recurso.\prod_{i=0}^{|evento|-1}\bigl(pago[evento[i]].apuesta[evento[i]]\bigr)\Bigr)}
 
-
+\pred{apuestaValida}{\In apuesta: \TLista{\float}}{
+\bigl(\sum_{i = 0}^{|apuesta|-1}apuesta[i] \bigr) = 1}
+*pagosPositivos, mismaLongitud, apuestasValidas y longitudApuestasPagos definidos en el ejercicio 1.2
+\\
+\textbf{Desarrollo 1.5:}
+\\
+En esta especificacion elegimos predicar acerca del cuantificador sobre las potenciales apuestas que existen para decidir cuales generan una ganancia maxima. El predicado esMaximaGanancia es el que justamente decide si la potencialApuesta es la de mayor ganancia posible y evaluando otraApuesta para verificar que efectivamente no haya ninguna otra que la supere.
 \end{proc}
 
 
