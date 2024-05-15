@@ -59,11 +59,11 @@
     \pred{mismaLongitud}{trayectorias,pagos,apuestas:\TLista{\TLista{\float}},eventos:\TLista{\TLista{\nat}},cooperan:\TLista{\bool}}{|trayectorias|=|cooperan|=|apuestas|=|pagos|=|eventos|}
     \pred{trayectoriasValidas}{trayectorias:\TLista{\TLista{\float}}}{|trayectorias| > 0 \land (\forall i: \ent)(0 \leq i < |trayectorias| \implicaLuego |trayectorias[i]| = 1 \yLuego (\forall x:\float)(x \in trayectorias[i] \implicaLuego x > 0))}
     \pred{pagosPositivos}{pagos:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |pagos| \yLuego (0 \leq j < |pagos[i]| \implicaLuego pagos[i][j] > 0))}
-    \pred{apuestasValidas}{apuestas:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |apuestas| \implicaLuego sumaApuestas(apuestas,i) = 1 \yLuego (0 \leq j < |apuestas[i]| \implicaLuego 0 \leq apuestas[i][j] \leq 1))}
+    \pred{apuestasValidas}{apuestas:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |apuestas| \implicaLuego sumaApuestas(apuestas,i) = 1 \yLuego (0 \leq j < |apuestas[i]| \implicaLuego 0 < apuestas[i][j] < 1))}
     \pred{longitudApuestasPagos}{apuestas,pagos:\TLista{\TLista{\float}}}{(\forall i:\ent)(0 \leq i < |apuestas| \implicaLuego |apuestas[i]| = |pagos[i]|)}
     \pred{longitudSublistas}{lista:\TLista{\TLista{T}}}{(\forall i:\ent)(0 \leq i < |lista| \implicaLuego (|lista[0]| > 0 \yLuego |lista[0]| = |lista[i]|))}
 
-    \pred{longitudEventosApuestas}{eventos,apuestas:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |eventos| \yLuego 0 \leq j < |eventos[i]|  \implicaLuego eventos[i][j] < |apuestas[i]|)}
+    \pred{longitudEventosApuestas}{eventos:\TLista{\TLista{\nat}},apuestas:\TLista{\TLista{\float}}}{(\forall i,j:\ent)(0 \leq i < |eventos| \yLuego 0 \leq j < |eventos[i]|  \implicaLuego eventos[i][j] < |apuestas[i]|)}
 
     
     \textbf{Desarrollo 1.2} \\
@@ -85,11 +85,11 @@
 \begin{proc}{trayectoriaExtrañaEscalera}{\In trayectoria: \TLista{\float}}{\bool}
 	\requiere{|trayectoria| > 0}
 	\asegura{res = true \iff \biggl((|trayectoria| = 1) \lor (|trayectoria| = 2 \land \neg(todosIguales(trayectoria)) \oLuego (|trayectoria| > 2 \land hayUnicoMax(trayectoria))\biggr)}
-	\pred{hayUnicoMax}{Trayectoria: \TLista{\float}}{
-	CantidadMaximos(Trayectoria) = 1 \lor MaxEnLimite(trayectoria)}
+	\pred{hayUnicoMax}{trayectoria: \TLista{\float}}{
+	(CantidadMaximos(trayectoria) = 1 \land \neg(UnMaxEnLimite(trayectoria))) \lor (CantidadMaximos(trayectoria) = 0 \land UnMaxEnLimite(trayectoria))}
     \pred{todosIguales}{lista:\TLista{\float}}{(\forall i,j : \ent)(0 \leq i < |lista| \land 0 \leq j < |lista| \land i \neq j \implicaLuego lista[i] = lista[j])}
-    \pred{MaxEnLimite}{Trayectoria:\TLista{\float}}{
-    ( lista[0] > lista[1]) \lor ( lista[|lista| -1] > lista[|lista| -2])
+    \pred{UnMaxEnLimite}{Trayectoria:\TLista{\float}}{
+    (lista[0] > lista[1] \land lista[|lista|-1] \leq lista[|lista|-2]) \lor ( lista[0] \leq lista[1] \land lista[|lista| -1] > lista[|lista| -2])
     }
     
 	\aux{CantidadMaximos}{lista: \TLista{\float}}{\ent}{\sum\limits_{i =1}^{|lista|-2}\IfThenElse{\biggl(\Bigl(\bigl(lista[i-1] < lista[i]\bigr) \land \bigl(lista[i] > lista[i+1]\bigr)\Bigr)\biggr)}{(1)}{(0)}}
@@ -101,7 +101,6 @@ En este ejercicio, utilizamos una separacion en 3 distintos casos, 2 de ellos un
 \\ El primero, siendo que $|\textit{trayectoria}|$ es 1 (se juega una ronda) sabemos que sera maximo local pues no tiene vecinos
 \\ El segundo, siendo que $|\textit{trayectoria}|$ es 2 y que, si son distintos, trivialmente alguno es mayor que el otro siendo entonces el maximo local
 \\El ultimo y mas general, dada una secuencia de mas de 2 elementos se busca si efectivamente hay algun numero mayor que sus numeros vecinos y que ademas sea el \textbf{unico} con esa propiedad en la secuencia
-\\ (Podriamos ahorrarnos el pred hayUnicoMax pero creemos que queda mas legible de esta forma)
 \end{proc}
 
 \subsection{Individuo Decide Si Cooperar O No}
