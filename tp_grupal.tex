@@ -182,7 +182,11 @@ endwhile
 \end{lstlisting}
 Para demostrar que la especificacion es correcta respecto a la implementacion, hay que demostrar la tripla de Hoare del requiere, la implementacion y el asegura. \\ Primero demostramos la correctitud del ciclo. Para esto planteamos: \\
 $
-P _c  \equiv i = 0 \land res = recurso \\ Q _c  \equiv res = recurso(apuesta _c  pago _c)^{\symbol{35}(eventos, True)} (apuesta _s pago _s)^{\symbol{35}(eventos, False)} \\ I \equiv 0 \leq i \leq |eventos| \yLuego res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)} \\ B \equiv i < |eventos| \\ Fv = |eventos| - i
+P _c  \equiv i = 0 \land res = recurso \land pago _c > 0 \land pago _s > 0 \land apuesta _c > 0 \land apuesta _s > 0 \land recurso > 0 \\
+Q _c  \equiv res = recurso(apuesta _c  pago _c)^{\symbol{35}(eventos, True)} (apuesta _s pago _s)^{\symbol{35}(eventos, False)} \\ 
+I \equiv 0 \leq i \leq |eventos| \yLuego res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)} \\ 
+B \equiv i < |eventos| \\ 
+Fv = |eventos| - i
 $
 \\ \\ Queremos ver que se cumplan: \\
 $
@@ -192,11 +196,14 @@ $
  %
 %
 %
-1) $P _c \implica I: \\  (i = 0 \land res = recurso) \implica (0 \leq i \leq |eventos| \yLuego \\ res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)})
+1) $P _c \implica I: \\  (i = 0 \land res = recurso \land pago _c > 0 \land pago _s > 0 \land apuesta _c > 0 \land apuesta _s > 0 \land recurso > 0) \implica (0 \leq i \leq |eventos| \yLuego \\ res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)})\\\\
 $
-Aumo que el antecedente es verdadero. Como i = 0, reemplazo i por 0 \\
+Aumo que el antecedente es verdadero. Como i = 0, reemplazo i por 0 \\\\
 $
-res = recurso \implica (0 \leq 0 \leq |eventos| \yLuego \\ res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, 0), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, 0), False)}) \\ \equiv res = recurso \implica res = recurso(apuesta _c  pago _c)^{\symbol{35}(⟨⟩, True)} (apuesta _s pago _s)^{\symbol{35}(⟨⟩, False)} \\ \equiv res = recurso \implica res = recurso(apuesta _c  pago _c)^0(apuesta _s pago _s)^0 \\ \equiv res = recurso \implica res = recurso
+(res = recurso \land pago _c > 0 \land pago _s > 0 \land apuesta _c > 0 \land apuesta _s > 0 \land recurso > 0) \implica\\ (0 \leq 0 \leq |eventos| \yLuego  res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, 0), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, 0), False)}) \\\\
+ \equiv (res = recurso \land pago _c > 0 \land pago _s > 0 \land apuesta _c > 0 \land apuesta _s > 0 \land recurso > 0) \implica\\ res = recurso(apuesta _c  pago _c)^{\symbol{35}(⟨⟩, True)} (apuesta _s pago _s)^{\symbol{35}(⟨⟩, False)} \\\\
+ \equiv (res = recurso \land pago _c > 0 \land pago _s > 0 \land apuesta _c > 0 \land apuesta _s > 0 \land recurso > 0) \implica\\ res = recurso(apuesta _c  pago _c)^0(apuesta _s pago _s)^0 \\ \\
+\equiv (res = recurso \land pago _c > 0 \land pago _s > 0 \land apuesta _c > 0 \land apuesta _s > 0 \land recurso > 0) \implica res = recurso\\
 $
 \\
 Como siempre es verdadero, se cumple $P _c \implica  I$
@@ -210,19 +217,22 @@ Como siempre es verdadero, se cumple $P _c \implica  I$
 wp(while...endwhile, I) $ \equiv$ wp(if...endif, wp(i := i+1, I) $\equiv wp(if...endif, def(i) \yLuego (0 \leq i+1 \leq |eventos| \yLuego \\ res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)}))$ \\ \\
 $\equiv (def(eventos[i]) \yLuego(eventos[i]=\True \land wp(res := res*apuesta _c*pago _c,  0 \leq i+1 \leq |eventos| \yLuego \\ res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)})) \lor (eventos[i]=\False \land wp(res := res*apuesta _s*pago _s, 0 \leq i+1 \leq |eventos| \yLuego \\ res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)})))$ \\ \\
 $
-\equiv (eventos[i]=\True \land  0 \leq i+1 \leq |eventos| \yLuego \\ res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)-1} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)}) \lor (eventos[i]=\False \land  0 \leq i+1 \leq |eventos| \yLuego  res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)-1})$ \\ \\
+\equiv 0 \leq i < |eventos| \yLuego (eventos[i]=\True \land  0 \leq i+1 \leq |eventos| \yLuego \\ res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)-1} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)}) \lor (eventos[i]=\False \land  0 \leq i+1 \leq |eventos| \yLuego  res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)-1})$ \\ \\
 
 Utilizando la propiedad $P\implica(Q\lor R) \Iff (P\implica Q)\lor(P\implica R)$ vemos los casos de la implicacion original por separado \\ Caso eventos[i]=$\True$:\\
 
-$(0 \leq i \leq |eventos| \yLuego res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)} \land \\ i < |eventos|) \implica (eventos[i]=\True \land  0 \leq i+1 \leq |eventos| \yLuego \\  res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)-1} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)})$\\ \\
+$(0 \leq i \leq |eventos| \yLuego res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)} \land \\ i < |eventos|) \implica (0 \leq i < |eventos| \yLuego (eventos[i]=\True \land  0 \leq i+1 \leq |eventos| \yLuego \\  res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)-1} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)}))$\\ \\
+
+$\equiv(0 \leq i < |eventos| \yLuego res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)}  \implica 0 \leq i < |eventos| \yLuego (eventos[i]=\True \land  0 \leq i+1 \leq |eventos| \yLuego \\  res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)-1} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)})$ \\\\
 
 $\equiv(0 \leq i < |eventos| \yLuego res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)}  \implica (eventos[i]=\True \land  0 \leq i+1 \leq |eventos| \yLuego \\  res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)-1} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)})$ \\\\
+
 Asumo verdadero el antecedente y reemplazo res \\
 $\equiv0 \leq i < |eventos|   \implica (eventos[i]=\True \land  0 \leq i+1 \leq |eventos| \yLuego  \\ recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)} =\\ recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)-1} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)})$\\
 
 Este predicado significa que si el elemento actual es \True, contar las apariciones de \True en eventos hasta el elemento anterior va a dar uno menos, lo cual es verdadero\\\\ Caso eventos[i]=$\False$:\\
 
-$(0 \leq i \leq |eventos| \yLuego res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)} \land \\ i < |eventos|) \implica (eventos[i]=\False \land  0 \leq i+1 \leq |eventos| \yLuego \\  res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)-1})$\\ \\
+$(0 \leq i \leq |eventos| \yLuego res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)} \land \\ i < |eventos|) \implica (0 \leq i < |eventos| \yLuego (eventos[i]=\False \land  0 \leq i+1 \leq |eventos| \yLuego \\  res = recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)-1}))$\\ \\
  Haciendo lo mismo que en el caso anterior: \\
 $\equiv0 \leq i < |eventos|   \implica (eventos[i]=\False \land  0 \leq i+1 \leq |eventos| \yLuego  \\ recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i), False)} =\\ recurso(apuesta _c  pago _c)^{\symbol{35}(subseq(eventos, 0, i+1), True)} (apuesta _s pago _s)^{\symbol{35}(subseq(eventos, 0, i+1), False)-1})$\\
 
@@ -256,14 +266,14 @@ Ambos lados de la implicacion son iguales, entoces la implicacion es verdadera \
 $wp(while...endwhile, |eventos|-i < v _0)  \equiv wp(if...endif, wp(i := i+1, |eventos|-i < v _0) \\ \equiv wp(if...endif, |eventos|-(i+1) < v _0)$\\
 
 $\equiv def(eventos[i]) \yLuego ((eventos[i]=\True \land wp(res := res*apuesta _c*pago _c, |eventos|-(i+1) < v _0)) \lor \\  (eventos[i]=\False \land wp(res := res*apuesta _s*pago _s, |eventos|-(i+1) < v _0)))$\\
-$\equiv (eventos[i]=\True \land |eventos|-(i+1) < v _0) \lor  (eventos[i]=\False \land  |eventos|-(i+1) < v _0)$\\
-$\equiv (eventos[i]=\True \lor  eventos[i]=\False) \land  |eventos|-(i+1) < v _0 \equiv |eventos|-(i+1) < v _0$\\
+$\equiv  0 \leq i < |eventos| \yLuego (eventos[i]=\True \land |eventos|-(i+1) < v _0) \lor  (eventos[i]=\False \land  |eventos|-(i+1) < v _0)$\\
+$\equiv  0 \leq i < |eventos| \yLuego (eventos[i]=\True \lor  eventos[i]=\False) \land  |eventos|-(i+1) < v _0 \equiv |eventos|-(i+1) < v _0$\\
 
 Volviendo a la equivalencia original: \\
-$(I \land B \land v _0 = Fv)\implica wp(while...endwhile, Fv < v _0)  \equiv (I \land B \land v _0 = |eventos|-i) \implica |eventos|-(i+1) < v _0 $\\
+$(I \land B \land v _0 = Fv)\implica wp(while...endwhile, Fv < v _0)  \equiv (I \land B \land v _0 = |eventos|-i) \implica \\  0 \leq i < |eventos| \yLuego |eventos|-(i+1) < v _0 $\\
 
 Asumo verdadero el antecedente y reemplazo $v _0$ por $ |eventos|-i $\\
-$\equiv (I \land B ) \implica |eventos|-(i+1) < |eventos|-i \equiv (I \land B ) \implica |eventos|-i-1 < |eventos|-i $\\
+$\equiv (I \land B ) \implica 0 \leq i < |eventos| \yLuego |eventos|-(i+1) < |eventos|-i \equiv (I \land B ) \implica 0 \leq i < |eventos| \yLuego |eventos|-i-1 < |eventos|-i $\\
 
 Como el consecuente es siempre verdadero, la implicacion es verdadera\\\\
 %
@@ -292,7 +302,7 @@ ${\equiv(apuesta _c + apuesta _s = 1 \land pago _c > 0 \land pago _s > 0 \land a
 
 Como el consecuente es siempre verdadero, la implicacion es verdadera\\
 
-Al demostrar esto queda demostrado que la especificacion es correcta respecto de la implementacion
+Al demostrar esto queda demostrado que la especificacion es correcta respecto de la implementacion ya que la postcondicion del ciclo es equivalente a la postcondicion
 
 
 
