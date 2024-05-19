@@ -141,10 +141,10 @@ Al final, podemos observar que utilizando la comparacion de la ultima posicion d
     \\apuestas[individuo] = old(apuestas)[i]})
     \\ \pred{esMaximaGanancia}{apuesta: \TLista{\float}, individuo:\nat, apuestas: \TLista{\TLista{\float}}, recursos: \TLista{\float}, cooperan: \TLista{\bool}, pagos: \TLista{\TLista{\float}}, eventos: \TLista{\TLista{\nat}}}
     {\biggl(cooperan[individuo]=true \land (\forall j: \float) \bigl(0 \leq j < |apuestas| \implicaLuego  \\recursosCoopFinal(setAt(apuestas,individuo,apuestas[j]),pagos,eventos,cooperan,recursos) \leq \\recursosCoopFinal(setAt(apuestas,individuo,apuesta),pagos,eventos,cooperan,recursos)\bigr)\biggr) \lor \\
-    \biggl(cooperan[individuo]=false \land (\forall j: \float) \bigl(0 \leq j < |apuestas| \implicaLuego  \\recursosNoCoopFinal(apuestas[j],pagos[individuo],eventos[individuo],recursos[individuo]) \leq \\recursosNoCoopFinal(apuesta,pagos[individuo],eventos[individuo],recursos[individuo])\bigr)
+    \biggl(cooperan[individuo]=false \land (\forall j: \float) \bigl(0 \leq j < |apuestas| \implicaLuego  \\crecimientoIndividual(apuestas[j],pagos[individuo],eventos[individuo]) \leq \\crecimientoIndividual(apuesta,pagos[individuo],eventos[individuo])\bigr)
     \biggr)}
 	
-\aux{recursosNoCoopFinal}{\In apuesta: \TLista{\float}, \In pago: \TLista{\float}, \In evento: \TLista{\nat},\In recurso: \float}{\float}{ \\ \Bigl(recurso.\prod_{i=0}^{|evento|-1}\bigl(pago[evento[i]].apuesta[evento[i]]\bigr)\Bigr)}
+\aux{crecimientoIndividual}{\In apuesta: \TLista{\float}, \In pago: \TLista{\float}, \In evento: \TLista{\nat}}{\float}{ \\ \Bigl(\prod_{i=0}^{|evento|-1}\bigl(pago[evento[i]].apuesta[evento[i]]\bigr)\Bigr)}
 
 \aux{recursosCoopFinal}{\In apuestas: \TLista{\TLista{\float}}, \In pagos: \TLista{\TLista{\float}}, \In eventos: \TLista{\TLista{\nat}},\In cooperan: \TLista{\bool},\In recursos: \TLista{\float}}{\float}
 { \\ (recursoPrimerEvento(apuestas,pagos,head(eventos),recursos,cooperan) *
@@ -152,15 +152,15 @@ Al final, podemos observar que utilizando la comparacion de la ultima posicion d
 
 \aux{recursosPrimerEvento}{\In apuestas: \TLista{\TLista{\float}}, \In pagos: \TLista{\TLista{\float}}, \In evento: \TLista{\nat},\In cooperan: \TLista{\bool},\In recursos: \TLista{\float}}{\float}
 { \\
-\sum_{i = 0}^{|cooperan|-1} \IfThenElse{cooperan[i]=true}{recursos[i]*apuestas[i][evento[i]]*pagos[i][evento[i]]}{0} *
-\\ (\sum_{i = 0}^{|cooperan|-1} \IfThenElse{cooperan[i]=true}{1}{0})^{-1}}
+\dfrac{\sum_{i = 0}^{|cooperan|-1} \IfThenElse{cooperan[i]=true}{recursos[i]*apuestas[i][evento[i]]*pagos[i][evento[i]]}{0}}{|cooperan|}
+}
+\\
 \\ 
 \aux{crecimientoCooperativo}{\In apuestas: \TLista{\TLista{\float}}, \In pagos: \TLista{\TLista{\float}}, \In eventos: \TLista{\TLista{\nat}},\In cooperan: \TLista{\bool},\In recursos: \TLista{\float}}{\float}{
-\\
-(\prod_{i=1}^{|eventos[0]|-1}\sum_{h = 0}^{|cooperan|-1} \IfThenElse{cooperan[h]=true}{apuestas[h][eventos[h][i]]*pagos[h][evento[h][i]]}{0}) *
-\\ (\sum_{i = 0}^{|cooperan|-1} \IfThenElse{cooperan[i]=true}{1}{0})^{-(|eventos[0]|-1)}
-} 
 \\ 
+\dfrac{\prod_{i=1}^{|eventos[0]|-1}\sum_{h = 0}^{|cooperan|-1} \IfThenElse{cooperan[h]=true}{apuestas[h][eventos[h][i]]*pagos[h][evento[h][i]]}{0}}{|cooperan|^{|eventos[0]|-1}}
+} 
+\\  
 \pred{apuestaValida}{\In apuesta: \TLista{\float}}{
 \bigl(\sum_{i = 0}^{|apuesta|-1}apuesta[i] \bigr) = 1}
 \\ *pagosPositivos, mismaLongitud, apuestasValidas, longitudEventosApuestas, longitudSublistas y  longitudApuestasPagos definidos en el ejercicio 1.2
@@ -168,7 +168,7 @@ Al final, podemos observar que utilizando la comparacion de la ultima posicion d
 \\
 \textbf{Desarrollo 1.5:}
 \\
-En estas especificación se plantea un cuantificador que permite describir la nueva apuesta elegida por el individuo en términos de si genera una máxima ganancia, a su vez elegida de entre las apuestas disponibles. Para establecer eso, con el predicado esMaximaGanancia se evalúa si la apuesta que se pretende cuantificar cumple con la condición de generar la máxima ganancia según si el individuo coopera o no. Para ello, compara el recurso final obtenido con la apuesta evaluada contra el recurso final obtenido con todas las otras apuestas disponibles. Luego las funciones auxiliares recursosCoopFinal y recursosNoCoop final computan los recursos finales según el caso.
+En estas especificación se plantea un cuantificador que permite describir la nueva apuesta elegida por el individuo en términos de si genera una máxima ganancia, a su vez elegida de entre las apuestas disponibles. Para establecer eso, con el predicado esMaximaGanancia se evalúa si la apuesta que se pretende cuantificar cumple con la condición de generar la máxima ganancia según si el individuo coopera o no. Para ello, compara el recurso final obtenido con la apuesta evaluada contra el recurso final obtenido con todas las otras apuestas disponibles. Luego las funciones auxiliares recursosCoopFinal y recursosNoCoop final computan los recursos finales según el caso. Para la comparación de los recursos finales individuales utilizamos la tasa individual de crecimiento de recurso, que si bien es independiente de los recursos iniciales y los recursos aportados por el fondo común refleja cómo será el crecimiento de los recursos individuales.
 \end{proc}
 
 
