@@ -43,11 +43,19 @@ public class SistemaSIU {
         }
     }
 
+    // CREO QUE ESTA CLASE ESTÁ LISTA
     private class Materia {
         private int[] plantelDocente;
         private ListaEnlazada<Tupla<Carrera, String>> listaSinonimos;
         private ListaEnlazada<String> listaAlumnos;
-        private int inscriptos;
+        private int inscriptosMateria;
+
+        public Materia() {
+            this.plantelDocente = new int[] { 0, 0, 0, 0 };
+            this.listaSinonimos = new ListaEnlazada<Tupla<Carrera, String>>();
+            this.listaAlumnos = new ListaEnlazada<String>();
+            this.inscriptosMateria = 0;
+        }
 
         public void agregarSinonimo(Carrera carrera, String nombreMateria) {
             Tupla<Carrera, String> nuevoSinonimo = new Tupla(carrera, nombreMateria);
@@ -55,11 +63,43 @@ public class SistemaSIU {
         }
 
         public void inscribirAlumno(String alumno) {
-            this.inscriptos += 1;
+            this.inscriptosMateria += 1;
             this.listaAlumnos.agregarAtras(alumno);
         }
-        // TODO: definir e implementar los métodos de la clase.
 
+        public void agregarDocente(CargoDocente cargo) {
+            String profString = "PROF";
+            String jtpString = "JTP";
+            String ayPrimString = "AY1";
+            String aySegString = "AY2";
+            if (profString.equals(cargo.PROF.name())) {
+                this.plantelDocente[0] += 1;
+            } else if (jtpString.equals(cargo.JTP.name())) {
+                this.plantelDocente[1] += 1;
+            } else if (ayPrimString.equals(cargo.AY1.name())) {
+                this.plantelDocente[2] += 1;
+            } else if (aySegString.equals(cargo.AY2.name())) {
+                this.plantelDocente[3] += 1;
+            }
+        }
+
+        public int[] plantelDocente() {
+            return plantelDocente;
+        }
+
+        public int inscriptos() {
+            return inscriptosMateria;
+        }
+
+        public boolean excedido() {
+            Boolean res;
+            Boolean condProf = 250 * plantelDocente[0] < inscriptosMateria;
+            Boolean condJTP = 100 * plantelDocente[1] < inscriptosMateria;
+            Boolean condAY1 = 20 * plantelDocente[2] < inscriptosMateria;
+            Boolean condAY2 = 20 * plantelDocente[3] < inscriptosMateria;
+            res = (condProf || condJTP || condAY1 || condAY2);
+            return res;
+        }
     }
 
     private class Carrera {
@@ -117,12 +157,18 @@ public class SistemaSIU {
         this.alumnos.agregar(estudiante, nMateriasAlumno);
     }
 
+    // LISTO
     public void agregarDocente(CargoDocente cargo, String carrera, String materia) {
-        throw new UnsupportedOperationException("Método no implementado aún");
+        Carrera carreraDestino = this.carreras.devolver(carrera);
+        Materia materiaDestino = carreraDestino.devolver(materia);
+        materiaDestino.agregarDocente(cargo);
     }
 
+    // LISTO
     public int[] plantelDocente(String materia, String carrera) {
-        throw new UnsupportedOperationException("Método no implementado aún");
+        Carrera carreraDestino = this.carreras.devolver(carrera);
+        Materia materiaDestino = carreraDestino.devolver(materia);
+        return materiaDestino.plantelDocente();
     }
 
     public void cerrarMateria(String materia, String carrera) {
@@ -130,11 +176,15 @@ public class SistemaSIU {
     }
 
     public int inscriptos(String materia, String carrera) {
-        throw new UnsupportedOperationException("Método no implementado aún");
+        Carrera carreraDestino = this.carreras.devolver(carrera);
+        Materia materiaDestino = carreraDestino.devolver(materia);
+        return materiaDestino.inscriptos();
     }
 
     public boolean excedeCupo(String materia, String carrera) {
-        throw new UnsupportedOperationException("Método no implementado aún");
+        Carrera carreraDestino = this.carreras.devolver(carrera);
+        Materia materiaDestino = carreraDestino.devolver(materia);
+        return materiaDestino.excedido();
     }
 
     public String[] carreras() {
