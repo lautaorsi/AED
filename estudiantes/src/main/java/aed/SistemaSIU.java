@@ -50,7 +50,8 @@ public class SistemaSIU {
         private int inscriptos;
 
         public void agregarSinonimo(Carrera carrera, String nombreMateria) {
-            // TODO: implementar el armado del array de tuplas.
+            Tupla<Carrera, String> nuevoSinonimo = new Tupla(carrera, nombreMateria);
+            this.listaSinonimos.add(nuevoSinonimo);
         }
 
         public void inscribirAlumno(String alumno) {
@@ -89,12 +90,13 @@ public class SistemaSIU {
         for (InfoMateria materia : infoMaterias) {
             Materia nuevaMateria = new Materia();
             for (ParCarreraMateria par : materia.getParesCarreraMateria()) {
+                String nombreCarrera = par.getCarrera();
                 Carrera carreraDestino;
-                if (!(this.carreras.pertenece(par.getCarrera()))) {
+                if (!(this.carreras.pertenece(nombreCarrera))) {
                     carreraDestino = new Carrera();
-                    carreras.agregar(par.getCarrera(), carreraDestino);
+                    carreras.agregar(nombreCarrera, carreraDestino);
                 } else {
-                    carreraDestino = carreras.devolver(par.getCarrera());
+                    carreraDestino = carreras.devolver(nombreCarrera);
                 }
                 carreraDestino.agregar(par.getNombreMateria(), nuevaMateria);
                 nuevaMateria.agregarSinonimo(carreraDestino, par.getNombreMateria());
