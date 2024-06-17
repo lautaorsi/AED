@@ -1,7 +1,7 @@
 package aed;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
+import java.util.*;
 import java.lang.String;
 
 public class SistemaSIU {
@@ -52,8 +52,9 @@ public class SistemaSIU {
             throw new UnsupportedOperationException("Método no implementado aún");
         }
 
-        public void agregar(String clave, V valor) {
+        public void agregar(java.lang.String clave, V valor) {
             NodoTrie nodoActual = this.raiz;
+            java.lang.String hola = "hola";
             int longitudClave = clave.length();
             // TODO: implementar
         }
