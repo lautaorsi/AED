@@ -2,6 +2,7 @@ package aed;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.lang.String;
 
 public class SistemaSIU {
     private DictTrie<String, Carrera> carreras;
@@ -25,19 +26,44 @@ public class SistemaSIU {
         }
     }
 
-    private class DictTrie<K, V> {
+    private class NodoTrie<T> {
+        NodoTrie[] nodoHijo;
+        Boolean esHoja;
+        T valor;
+
+        public NodoTrie(int tamaño) {
+            this.nodoHijo = new NodoTrie[tamaño];
+            this.esHoja = false;
+            this.valor = null;
+        }
+    }
+
+    private class DictTrie<String, V> {
         // TODO: implementar un diccionario con un trie, con clave tipo K y valor tipo
         // V.
-        public Boolean pertenece(K clave) {
+        NodoTrie raiz;
+
+        public DictTrie(int tamaño) {
+            this.raiz = new NodoTrie<V>(tamaño);
+        }
+
+        public Boolean pertenece(String clave) {
             // TODO: implementar
             throw new UnsupportedOperationException("Método no implementado aún");
         }
 
-        public void agregar(K clave, V valor) {
+        public void agregar(String clave, V valor) {
+            NodoTrie nodoActual = this.raiz;
+            int longitudClave = clave.length();
             // TODO: implementar
         }
 
-        public V devolver(K clave) {
+        public V devolver(String clave) {
+            // TODO: implementar
+            throw new UnsupportedOperationException("Método no implementado aún");
+        }
+
+        public void remover(String clave) {
             // TODO: implementar
             throw new UnsupportedOperationException("Método no implementado aún");
         }
@@ -100,17 +126,39 @@ public class SistemaSIU {
             res = (condProf || condJTP || condAY1 || condAY2);
             return res;
         }
+
+        public void cerrarMateria() {
+            Iterador<String> iterAlumnos = this.listaAlumnos.iterador();
+            while (iterAlumnos.haySiguiente()) {
+                String alumno = iterAlumnos.siguiente();
+                int nMateriasAlumno = alumnos.devolver(alumno);
+                nMateriasAlumno -= 1;
+                alumnos.agregar(alumno, nMateriasAlumno);
+            }
+
+            Iterador<Tupla<Carrera, String>> iterSinonimos = this.listaSinonimos.iterador();
+            while (iterSinonimos.haySiguiente()) {
+                Tupla<Carrera, String> par = iterSinonimos.siguiente();
+                Carrera carreraDestino = par.devolverPrimero();
+                String nombreMateria = par.devolverSegundo();
+                carreraDestino.remover(nombreMateria);
+            }
+        }
     }
 
     private class Carrera {
         private DictTrie<String, Materia> materias;
 
         public void agregar(String nombreMateria, Materia materia) {
-            materias.agregar(nombreMateria, materia);
+            this.materias.agregar(nombreMateria, materia);
         }
 
         public Materia devolver(String nombreMateria) {
-            throw new UnsupportedOperationException("Método no implementado aún");
+            return this.materias.devolver(nombreMateria); // Ver implementación en el trie
+        }
+
+        public void remover(String nombreMateria) {
+            this.materias.remover(nombreMateria); // Ver implementación en el trie
         }
         // TODO: definir e implementar los métodos de la clase.
 
@@ -125,8 +173,10 @@ public class SistemaSIU {
 
     // LISTO
     public SistemaSIU(InfoMateria[] infoMaterias, String[] libretasUniversitarias) {
+
         this.carreras = new DictTrie<String, Carrera>();
         this.alumnos = new DictTrie<String, Integer>();
+
         for (InfoMateria materia : infoMaterias) {
             Materia nuevaMateria = new Materia();
             for (ParCarreraMateria par : materia.getParesCarreraMateria()) {
@@ -171,16 +221,21 @@ public class SistemaSIU {
         return materiaDestino.plantelDocente();
     }
 
+    // LISTO
     public void cerrarMateria(String materia, String carrera) {
-        throw new UnsupportedOperationException("Método no implementado aún");
+        Carrera carreraDestino = this.carreras.devolver(carrera);
+        Materia materiaDestino = carreraDestino.devolver(materia);
+        materiaDestino.cerrarMateria();
     }
 
+    // LISTO
     public int inscriptos(String materia, String carrera) {
         Carrera carreraDestino = this.carreras.devolver(carrera);
         Materia materiaDestino = carreraDestino.devolver(materia);
         return materiaDestino.inscriptos();
     }
 
+    // LISTO
     public boolean excedeCupo(String materia, String carrera) {
         Carrera carreraDestino = this.carreras.devolver(carrera);
         Materia materiaDestino = carreraDestino.devolver(materia);
