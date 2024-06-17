@@ -31,7 +31,7 @@ public class SistemaSIU {
         private class Nodo {
             ArrayList<Nodo> sig; // O(1)
             String clave;
-            V val = null; // O(1)
+            V val; // O(1)
             int hijosNoNulo; // O(1)
 
             public Nodo() {
@@ -41,6 +41,7 @@ public class SistemaSIU {
                     sig.add(null);
                 }
                 hijosNoNulo = 0; // O(1)
+                val = null;
             }
 
         }
@@ -84,7 +85,7 @@ public class SistemaSIU {
         public void quitar(String clave) {
             Nodo actual = raiz; // O(1)
             Nodo ultimoUtil = raiz; // O(1)
-            int ultimoCUtil = 0; // O(1)
+            int ultimoCUtil = clave.charAt(0); // O(1)
             // este for tiene complegidad O(|s|) ya que siempre cicla por todos los
             // caracteres del String
             for (int i = 0; i < clave.length(); i++) {
