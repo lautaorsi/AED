@@ -58,7 +58,7 @@ public class SistemaSIU {
         }
 
         public void agregarSinonimo(Carrera carrera, String nombreMateria) {
-            Tupla<Carrera, String> nuevoSinonimo = new Tupla(carrera, nombreMateria);
+            Tupla<Carrera, String> nuevoSinonimo = new Tupla<Carrera, String>(carrera, nombreMateria);
             this.listaSinonimos.agregarAtras(nuevoSinonimo);
         }
 
