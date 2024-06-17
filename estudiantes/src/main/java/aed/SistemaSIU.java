@@ -45,18 +45,18 @@ public class SistemaSIU {
 
     private class Materia {
         private int[] plantelDocente;
-        private ArrayList<Tupla<Carrera, String>> listaSinonimos;
-        private ArrayList<String> listaAlumnos;
+        private ListaEnlazada<Tupla<Carrera, String>> listaSinonimos;
+        private ListaEnlazada<String> listaAlumnos;
         private int inscriptos;
 
         public void agregarSinonimo(Carrera carrera, String nombreMateria) {
             Tupla<Carrera, String> nuevoSinonimo = new Tupla(carrera, nombreMateria);
-            this.listaSinonimos.add(nuevoSinonimo);
+            this.listaSinonimos.agregarAtras(nuevoSinonimo);
         }
 
         public void inscribirAlumno(String alumno) {
             this.inscriptos += 1;
-            this.listaAlumnos.add(alumno);
+            this.listaAlumnos.agregarAtras(alumno);
         }
         // TODO: definir e implementar los métodos de la clase.
 
