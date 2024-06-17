@@ -4,8 +4,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class SistemaSIU {
-    private DictTrie<String, Carrera> carreras;
-    private DictTrie<String, Integer> alumnos;
+    private DictTrie<Carrera> carreras;
+    private DictTrie<Integer> alumnos;
 
     private class Tupla<A, B> {
         private A primero;
@@ -25,21 +25,115 @@ public class SistemaSIU {
         }
     }
 
-    private class DictTrie<K, V> {
-        // TODO: implementar un diccionario con un trie, con clave tipo K y valor tipo
-        // V.
-        public Boolean pertenece(K clave) {
-            // TODO: implementar
-            throw new UnsupportedOperationException("Método no implementado aún");
+    private class DictTrie<V> {
+        private Nodo raiz;
+
+        private class Nodo{
+            ArrayList<Nodo> sig; //O(1)
+            String clave;
+            V val=null; //O(1)
+            int hijosNoNulo; //O(1)
+
+            public Nodo() {
+                sig = new ArrayList<Nodo>();
+                // al ejecutarse siempre 255 veces tiene complejidad O(255) = O(1)
+                for (int i = 0; i < 256; i++) {
+                    sig.add(null);
+                } 
+                hijosNoNulo=0; //O(1)
+            }
+        
+        }
+        public DictTrie(){
+            raiz = new Nodo(); //O(1)
         }
 
-        public void agregar(K clave, V valor) {
-            // TODO: implementar
+        public Boolean pertenece(String clave) {
+            Nodo actual=raiz; //O(1)
+            // este for tiene complejidad O(|s|) ya que en el peor caso cicla por todos los caracteres del String
+            for (int i = 0; i < clave.length(); i++){
+                int c = (int) clave.charAt(i); //O(1)
+                if(actual.sig.get(c)==null){ //O(1)
+                    return false; //O(1)
+                } else {
+                    actual=actual.sig.get(c); //O(1)
+                }
+            }
+            return actual.val != null; //O(1)
         }
 
-        public V devolver(K clave) {
-            // TODO: implementar
-            throw new UnsupportedOperationException("Método no implementado aún");
+        public void agregar(String clave, V valor) {
+            Nodo actual=raiz; //O(1)
+            // este for tiene complegidad O(|s|) ya que siempre cicla por todos los caracteres del String
+            for (int i=0; i<clave.length(); i++){ 
+                int c = (int) clave.charAt(i); //supongo que es O(1)
+                if(actual.sig.get(c)==null){  //O(1)
+                    Nodo n = new Nodo();
+                    actual.sig.set(c, n);  //O(1)
+                    actual.hijosNoNulo++;  //O(1)
+                }
+                actual=actual.sig.get(c);  //O(1)
+            }
+            actual.val=valor;  //O(1)
+            actual.clave=clave;
+        }
+
+        public void quitar(String clave){
+            Nodo actual = raiz; //O(1)
+            Nodo ultimoUtil=raiz; //O(1)
+            int ultimoCUtil=0; //O(1)
+            // este for tiene complegidad O(|s|) ya que siempre cicla por todos los caracteres del String
+            for (int i=0; i<clave.length(); i++){
+                int c = (int) clave.charAt(i); //O(1)
+                if(actual.hijosNoNulo>1){ //O(1)
+                    ultimoCUtil = c; //O(1)
+                    ultimoUtil = actual; //O(1)
+                }
+                actual=actual.sig.get(c); //O(1)
+            }
+            if(actual.hijosNoNulo==0){ //O(1)
+                ultimoUtil.sig.set(ultimoCUtil, null); //O(1)
+            } else {
+                actual.val=null; //O(1)
+                actual.clave=null;
+            }
+        }
+
+        public V devolver(String clave) {
+            Nodo actual=raiz;
+            for (int i=0; i<clave.length(); i++){
+                int c = (int) clave.charAt(i);
+                if(actual.sig.get(c)==null){
+                    return null;
+                } else {
+                    actual=actual.sig.get(c);
+                }
+            }
+            return actual.val;
+        }
+
+        public String[] listar(){
+            ArrayList<String> list = new ArrayList<String>();
+
+            list=listaRecursiva(list, raiz);
+
+            String[] res = new String[list.size()];
+            res = list.toArray(res);
+            return res;
+        }
+
+        private ArrayList<String> listaRecursiva(ArrayList<String> lista, Nodo actual){
+            if(actual.clave!=null){
+                lista.add(actual.clave);
+            }
+            if(actual.hijosNoNulo>0){
+                for (int i = 0; i < 256; i++) {
+                    if(actual.sig.get(i)!=null){
+                        lista = listaRecursiva(lista, actual.sig.get(i));
+                    }
+                }
+            }
+            return lista;
         }
     }
 
@@ -103,16 +197,20 @@ public class SistemaSIU {
     }
 
     private class Carrera {
-        private DictTrie<String, Materia> materias;
+        private DictTrie<Materia> materias;
+
+        public Carrera(){
+            this.materias = new DictTrie<Materia>();
+        }
 
         public void agregar(String nombreMateria, Materia materia) {
             materias.agregar(nombreMateria, materia);
         }
 
         public Materia devolver(String nombreMateria) {
-            throw new UnsupportedOperationException("Método no implementado aún");
+            return materias.devolver(nombreMateria);
         }
-        // TODO: definir e implementar los métodos de la clase.
+        
 
     }
 
@@ -125,8 +223,8 @@ public class SistemaSIU {
 
     // LISTO
     public SistemaSIU(InfoMateria[] infoMaterias, String[] libretasUniversitarias) {
-        this.carreras = new DictTrie<String, Carrera>();
-        this.alumnos = new DictTrie<String, Integer>();
+        this.carreras = new DictTrie<Carrera>();
+        this.alumnos = new DictTrie<Integer>();
         for (InfoMateria materia : infoMaterias) {
             Materia nuevaMateria = new Materia();
             for (ParCarreraMateria par : materia.getParesCarreraMateria()) {
@@ -172,7 +270,7 @@ public class SistemaSIU {
     }
 
     public void cerrarMateria(String materia, String carrera) {
-        throw new UnsupportedOperationException("Método no implementado aún");
+        throw new UnsupportedOperationException("Método no implementado aún");/////////////////////////////////NO IMPLEMENTADO AUN
     }
 
     public int inscriptos(String materia, String carrera) {
@@ -188,14 +286,14 @@ public class SistemaSIU {
     }
 
     public String[] carreras() {
-        throw new UnsupportedOperationException("Método no implementado aún");
+        return carreras.listar();
     }
 
     public String[] materias(String carrera) {
-        throw new UnsupportedOperationException("Método no implementado aún");
+        return carreras.devolver(carrera).materias.listar();
     }
 
     public int materiasInscriptas(String estudiante) {
-        throw new UnsupportedOperationException("Método no implementado aún");
+        return alumnos.devolver(estudiante);
     }
 }
