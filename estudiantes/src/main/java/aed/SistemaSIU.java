@@ -68,18 +68,18 @@ public class SistemaSIU {
         }
 
         public void agregarDocente(CargoDocente cargo) {
-            String profString = "PROF";
-            String jtpString = "JTP";
-            String ayPrimString = "AY1";
-            String aySegString = "AY2";
-            if (profString.equals(cargo.PROF.name())) {
-                this.plantelDocente[0] += 1;
-            } else if (jtpString.equals(cargo.JTP.name())) {
-                this.plantelDocente[1] += 1;
-            } else if (ayPrimString.equals(cargo.AY1.name())) {
-                this.plantelDocente[2] += 1;
-            } else if (aySegString.equals(cargo.AY2.name())) {
-                this.plantelDocente[3] += 1;
+            switch (cargo) {
+                case PROF:
+                    this.plantelDocente[0] += 1;
+                    break;
+                case JTP:
+                    this.plantelDocente[1] += 1;
+                    break;
+                case AY1:
+                    this.plantelDocente[2] += 1;
+                    break;
+                case AY2:
+                    this.plantelDocente[3] += 1;
             }
         }
 
