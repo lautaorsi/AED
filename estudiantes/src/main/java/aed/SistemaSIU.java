@@ -28,107 +28,111 @@ public class SistemaSIU {
     private class DictTrie<V> {
         private Nodo raiz;
 
-        private class Nodo{
-            ArrayList<Nodo> sig; //O(1)
+        private class Nodo {
+            ArrayList<Nodo> sig; // O(1)
             String clave;
-            V val=null; //O(1)
-            int hijosNoNulo; //O(1)
+            V val = null; // O(1)
+            int hijosNoNulo; // O(1)
 
             public Nodo() {
                 sig = new ArrayList<Nodo>();
                 // al ejecutarse siempre 255 veces tiene complejidad O(255) = O(1)
                 for (int i = 0; i < 256; i++) {
                     sig.add(null);
-                } 
-                hijosNoNulo=0; //O(1)
+                }
+                hijosNoNulo = 0; // O(1)
             }
-        
+
         }
-        public DictTrie(){
-            raiz = new Nodo(); //O(1)
+
+        public DictTrie() {
+            raiz = new Nodo(); // O(1)
         }
 
         public Boolean pertenece(String clave) {
-            Nodo actual=raiz; //O(1)
-            // este for tiene complejidad O(|s|) ya que en el peor caso cicla por todos los caracteres del String
-            for (int i = 0; i < clave.length(); i++){
-                int c = (int) clave.charAt(i); //O(1)
-                if(actual.sig.get(c)==null){ //O(1)
-                    return false; //O(1)
+            Nodo actual = raiz; // O(1)
+            // este for tiene complejidad O(|s|) ya que en el peor caso cicla por todos los
+            // caracteres del String
+            for (int i = 0; i < clave.length(); i++) {
+                int c = (int) clave.charAt(i); // O(1)
+                if (actual.sig.get(c) == null) { // O(1)
+                    return false; // O(1)
                 } else {
-                    actual=actual.sig.get(c); //O(1)
+                    actual = actual.sig.get(c); // O(1)
                 }
             }
-            return actual.val != null; //O(1)
+            return actual.val != null; // O(1)
         }
 
         public void agregar(String clave, V valor) {
-            Nodo actual=raiz; //O(1)
-            // este for tiene complegidad O(|s|) ya que siempre cicla por todos los caracteres del String
-            for (int i=0; i<clave.length(); i++){ 
-                int c = (int) clave.charAt(i); //supongo que es O(1)
-                if(actual.sig.get(c)==null){  //O(1)
+            Nodo actual = raiz; // O(1)
+            // este for tiene complegidad O(|s|) ya que siempre cicla por todos los
+            // caracteres del String
+            for (int i = 0; i < clave.length(); i++) {
+                int c = (int) clave.charAt(i); // supongo que es O(1)
+                if (actual.sig.get(c) == null) { // O(1)
                     Nodo n = new Nodo();
-                    actual.sig.set(c, n);  //O(1)
-                    actual.hijosNoNulo++;  //O(1)
+                    actual.sig.set(c, n); // O(1)
+                    actual.hijosNoNulo++; // O(1)
                 }
-                actual=actual.sig.get(c);  //O(1)
+                actual = actual.sig.get(c); // O(1)
             }
-            actual.val=valor;  //O(1)
-            actual.clave=clave;
+            actual.val = valor; // O(1)
+            actual.clave = clave;
         }
 
-        public void quitar(String clave){
-            Nodo actual = raiz; //O(1)
-            Nodo ultimoUtil=raiz; //O(1)
-            int ultimoCUtil=0; //O(1)
-            // este for tiene complegidad O(|s|) ya que siempre cicla por todos los caracteres del String
-            for (int i=0; i<clave.length(); i++){
-                int c = (int) clave.charAt(i); //O(1)
-                if(actual.hijosNoNulo>1){ //O(1)
-                    ultimoCUtil = c; //O(1)
-                    ultimoUtil = actual; //O(1)
+        public void quitar(String clave) {
+            Nodo actual = raiz; // O(1)
+            Nodo ultimoUtil = raiz; // O(1)
+            int ultimoCUtil = 0; // O(1)
+            // este for tiene complegidad O(|s|) ya que siempre cicla por todos los
+            // caracteres del String
+            for (int i = 0; i < clave.length(); i++) {
+                int c = (int) clave.charAt(i); // O(1)
+                if (actual.hijosNoNulo > 1) { // O(1)
+                    ultimoCUtil = c; // O(1)
+                    ultimoUtil = actual; // O(1)
                 }
-                actual=actual.sig.get(c); //O(1)
+                actual = actual.sig.get(c); // O(1)
             }
-            if(actual.hijosNoNulo==0){ //O(1)
-                ultimoUtil.sig.set(ultimoCUtil, null); //O(1)
+            if (actual.hijosNoNulo == 0) { // O(1)
+                ultimoUtil.sig.set(ultimoCUtil, null); // O(1)
             } else {
-                actual.val=null; //O(1)
-                actual.clave=null;
+                actual.val = null; // O(1)
+                actual.clave = null;
             }
         }
 
         public V devolver(String clave) {
-            Nodo actual=raiz;
-            for (int i=0; i<clave.length(); i++){
+            Nodo actual = raiz;
+            for (int i = 0; i < clave.length(); i++) {
                 int c = (int) clave.charAt(i);
-                if(actual.sig.get(c)==null){
+                if (actual.sig.get(c) == null) {
                     return null;
                 } else {
-                    actual=actual.sig.get(c);
+                    actual = actual.sig.get(c);
                 }
             }
             return actual.val;
         }
 
-        public String[] listar(){
+        public String[] listar() {
             ArrayList<String> list = new ArrayList<String>();
 
-            list=listaRecursiva(list, raiz);
+            list = listaRecursiva(list, raiz);
 
             String[] res = new String[list.size()];
             res = list.toArray(res);
             return res;
         }
 
-        private ArrayList<String> listaRecursiva(ArrayList<String> lista, Nodo actual){
-            if(actual.clave!=null){
+        private ArrayList<String> listaRecursiva(ArrayList<String> lista, Nodo actual) {
+            if (actual.clave != null) {
                 lista.add(actual.clave);
             }
-            if(actual.hijosNoNulo>0){
+            if (actual.hijosNoNulo > 0) {
                 for (int i = 0; i < 256; i++) {
-                    if(actual.sig.get(i)!=null){
+                    if (actual.sig.get(i) != null) {
                         lista = listaRecursiva(lista, actual.sig.get(i));
                     }
                 }
@@ -194,12 +198,30 @@ public class SistemaSIU {
             res = (condProf || condJTP || condAY1 || condAY2);
             return res;
         }
+
+        public void cerrarMateria() {
+            Iterador<String> iterAlumnos = this.listaAlumnos.iterador();
+            while (iterAlumnos.haySiguiente()) {
+                String alumno = iterAlumnos.siguiente();
+                int nMateriasAlumno = alumnos.devolver(alumno);
+                nMateriasAlumno -= 1;
+                alumnos.agregar(alumno, nMateriasAlumno);
+            }
+
+            Iterador<Tupla<Carrera, String>> iterSinonimos = this.listaSinonimos.iterador();
+            while (iterSinonimos.haySiguiente()) {
+                Tupla<Carrera, String> par = iterSinonimos.siguiente();
+                Carrera carreraDestino = par.devolverPrimero();
+                String nombreMateria = par.devolverSegundo();
+                carreraDestino.remover(nombreMateria);
+            }
+        }
     }
 
     private class Carrera {
         private DictTrie<Materia> materias;
 
-        public Carrera(){
+        public Carrera() {
             this.materias = new DictTrie<Materia>();
         }
 
@@ -210,7 +232,10 @@ public class SistemaSIU {
         public Materia devolver(String nombreMateria) {
             return materias.devolver(nombreMateria);
         }
-        
+
+        public void remover(String nombreMateria) {
+            this.materias.quitar(nombreMateria);
+        }
 
     }
 
@@ -270,7 +295,9 @@ public class SistemaSIU {
     }
 
     public void cerrarMateria(String materia, String carrera) {
-        throw new UnsupportedOperationException("Método no implementado aún");/////////////////////////////////NO IMPLEMENTADO AUN
+        Carrera carreraDestino = this.carreras.devolver(carrera);
+        Materia materiaDestino = carreraDestino.devolver(materia);
+        materiaDestino.cerrarMateria();
     }
 
     public int inscriptos(String materia, String carrera) {
@@ -290,7 +317,8 @@ public class SistemaSIU {
     }
 
     public String[] materias(String carrera) {
-        return carreras.devolver(carrera).materias.listar();
+        Carrera carreraDestino = this.carreras.devolver(carrera);
+        return carreraDestino.materias.listar();
     }
 
     public int materiasInscriptas(String estudiante) {
