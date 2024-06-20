@@ -1,6 +1,6 @@
 package aed;
 
-public class ParCarreraMateria {
+public class ParCarreraMateria { //Invariante: los strings carrera y nombreMateria no son vacíos.
     String carrera;
     String nombreMateria;
 

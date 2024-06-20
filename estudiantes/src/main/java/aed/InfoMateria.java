@@ -1,6 +1,6 @@
 package aed;
 
-public class InfoMateria{
+public class InfoMateria{ 
 
     private ParCarreraMateria[] paresCarreraMateria;
 
