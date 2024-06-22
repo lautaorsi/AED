@@ -13,12 +13,14 @@ public class Materia {
     private ListaEnlazada<Tupla<Carrera, String>> listaSinonimos;
     private ListaEnlazada<String> listaAlumnos;
     private int inscriptosMateria;
+    private DictTrie<String> conjuntoAlumnos;
 
     public Materia() {
         this.plantelDocente = new int[] { 0, 0, 0, 0 }; // O(1)
         this.listaSinonimos = new ListaEnlazada<Tupla<Carrera, String>>(); // O(1)
         this.listaAlumnos = new ListaEnlazada<String>(); // O(1)
         this.inscriptosMateria = 0; // O(1)
+        this.conjuntoAlumnos = new DictTrie<String>();
     }
 
     public void agregarSinonimo(Carrera carrera, String nombreMateria) {
@@ -29,6 +31,7 @@ public class Materia {
     public void inscribirAlumno(String alumno) {
         this.inscriptosMateria += 1; // O(1)
         this.listaAlumnos.agregarAtras(alumno); // O(1)
+        this.conjuntoAlumnos.agregar(alumno, alumno);
     }
 
     public void agregarDocente(CargoDocente cargo) { // O(1)
@@ -63,6 +66,10 @@ public class Materia {
         Boolean condAY2 = 20 * plantelDocente[3] < inscriptosMateria;
         res = (condProf || condJTP || condAY1 || condAY2);
         return res;
+    }
+
+    public DictTrie<String> devolverConjuntoAlumnos() {
+        return this.conjuntoAlumnos;
     }
 
     public void cerrarMateria(DictTrie<Integer> alumnos) {

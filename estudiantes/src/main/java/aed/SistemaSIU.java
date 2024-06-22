@@ -48,10 +48,13 @@ public class SistemaSIU { // Invariante: no se puede repetir un mismo LU en una 
     public void inscribir(String estudiante, String carrera, String materia) {
         Carrera carreraDestino = this.carreras.devolver(carrera); // O(|c|) ->nombre de carrera
         Materia materiaDestino = carreraDestino.devolver(materia); // O(|m|) -> nombre de materia
-        materiaDestino.inscribirAlumno(estudiante); // O(1)
-        int nMateriasAlumno = this.alumnos.devolver(estudiante); // O(1) -> porque LU son acotadas
-        nMateriasAlumno += 1; // O(1)
-        this.alumnos.agregar(estudiante, nMateriasAlumno); // O(1)
+        if (!materiaDestino.devolverConjuntoAlumnos().pertenece(estudiante)) {
+            materiaDestino.inscribirAlumno(estudiante); // O(1)
+            int nMateriasAlumno = this.alumnos.devolver(estudiante); // O(1) -> porque LU son acotadas
+            nMateriasAlumno += 1; // O(1)
+            this.alumnos.agregar(estudiante, nMateriasAlumno); // O(1)
+        }
+
     } // O(1) + O(|c|) + O(|m|) = O(|c| + |m|)
 
     // LISTO
