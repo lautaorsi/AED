@@ -4,7 +4,7 @@ public class ListaEnlazada<T> {
     // Invariante: el puntero anterior del primer nodo es null. El puntero siguiente del ultimo nodo es null.
     //Si el siguiente de un nodo n es m, el anterior del nodo m es n. Todos los nodos son accesibles
     //No tiene ciclos. Si la lista es vacía el puntero a primero y ultimo es null. 
-    // Completar atributos privados
+    
     private int longitud;
     private Nodo primero;
     private Nodo ultimo;

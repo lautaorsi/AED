@@ -2,7 +2,7 @@ package aed;
 
 import java.util.ArrayList;
 
-public class DictTrie<V> { // Invariante: no se llega por 2 claves al mismo nodo
+public class DictTrie<V> {  // Invariante: no se llega por 2 claves al mismo nodo
     // Si los nodos no tienen significado (val), tienen hijos.
     // No hay nodos huerfanos (no alcanzables por la raiz)
     // Los valores no son nulos si tienen una clave asociada

@@ -3,11 +3,14 @@ package aed;
 import aed.SistemaSIU.CargoDocente;
 
 public class Materia {
-    // Invariante: el largo de listaAlumnos es igual a inscriptosMateria.
-    // listaSinonimos no tiene tuplas duplicadas
+    // Invariante: inscriptosMateria es igual a largo de listaAlumnos y cantidad de claves de conjuntoAlumnos
+    // listaSinonimos no tiene tuplas duplicadas ni varias tuplas con la misma carrera
+    //Cada carrera en listaSinonimos corresponde a una carrera existente en el sistema
     // El largo de plantelDocente es 4
-    // listaAlumnos no tiene alumnos repetidos
+    // listaAlumnos no tiene alumnos repetidos 
+    // listaAlumnos y conjuntoAlumnos tienen todas las LU de la materia (para todas las carreras de esta)
     // Los int en plantelDocente y inscriptosMateria son mayores o iguales a 0
+
 
     private int[] plantelDocente;
     private ListaEnlazada<Tupla<Carrera, String>> listaSinonimos;

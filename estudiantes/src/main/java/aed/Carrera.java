@@ -1,6 +1,8 @@
 package aed;
 
-public class Carrera {
+public class Carrera { //En trie materias están todas las materias de la carrera
+    //Cada materia del trie materias de una carrera debe estar en la lista de sinónimos de dicha materia,
+    //en conjunto con la carrera
     private DictTrie<Materia> materias;
 
     public Carrera() {
